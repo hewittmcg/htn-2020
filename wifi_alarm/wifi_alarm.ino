@@ -43,6 +43,8 @@ void setup() {
     delay(100);
   }
   Serial.println("Connected to MQTT.");
+
+  mqtt_client.subscribe("test_rx/");
 }
 
 // Called when a MQTT message is received
@@ -52,6 +54,8 @@ void callback(char *topic, byte *payload, unsigned int length) {
 }
 
 void loop() {
-  
-
+  char *test_msg = "testing whooooooo";
+  Serial.println("Sending test msg");
+  mqtt_client.publish("test_tx/", test_msg);
+  delay(5000);
 }
