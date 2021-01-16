@@ -12,8 +12,8 @@ const char *ssid = "McGaughey";
 const char *pass = "!Algonquin99";
 
 // IP of MQTT server
-const char *sever_ip = "192.168.2.83";
-const int server_port = 2000;
+const char *server_ip = "192.168.2.89";
+const int server_port = 1883;
 
 // MQTT topics used for tx/rx
 // (todo)
@@ -33,6 +33,16 @@ void setup() {
   }
 
   Serial.println("WiFi connected.");
+
+  mqtt_client.setServer(server_ip, server_port);
+  mqtt_client.setCallback(callback);
+
+  Serial.println("Connecting to MQTT.");
+  while(!mqtt_client.connected()) {
+    mqtt_client.connect("test");
+    delay(100);
+  }
+  Serial.println("Connected to MQTT.");
 }
 
 // Called when a MQTT message is received
