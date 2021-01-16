@@ -16,7 +16,8 @@ const char *server_ip = "192.168.2.89";
 const int server_port = 1883;
 
 // MQTT topics used for tx/rx
-// (todo)
+const char *TX_TOPIC = "alarm_tx/";
+const char *RX_TOPIC = "alarm_rx/";
 
 // todo replace these with bytecodes later to make simpler
 // message sent to turn on buzzer
@@ -50,12 +51,12 @@ void setup() {
 
   Serial.println("Connecting to MQTT.");
   while(!mqtt_client.connected()) {
-    mqtt_client.connect("test");
+    mqtt_client.connect("alarm");
     delay(100);
   }
   Serial.println("Connected to MQTT.");
 
-  mqtt_client.subscribe("test_rx/");
+  mqtt_client.subscribe(RX_TOPIC);
 
   // Configure IO
   pinMode(LED_PIN, OUTPUT);
@@ -73,10 +74,9 @@ void callback(char *topic, byte *payload, unsigned int length) {
   }
   Serial.println("");
 
-  Serial.println(length);
   if(memcmp((char*)payload, ALARM_ON_MSG, length) == 0) {
     Serial.println("Alarm on, waiting for button press");
-    //todo
+    
     // turn on LED/buzzer
     digitalWrite(LED_PIN, HIGH);
 
@@ -84,8 +84,11 @@ void callback(char *topic, byte *payload, unsigned int length) {
     while(digitalRead(BUTTON_PIN) == LOW) {
       delay(50);
     }
+
+    // turn off LED/buzzer + send corresponding msg
     digitalWrite(LED_PIN, LOW);
     Serial.println("Button press registered, alarm turned off");
+    mqtt_client.publish(TX_TOPIC, ALARM_OFF_MSG);
   }
   
 }
